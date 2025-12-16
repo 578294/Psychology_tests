@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Психологические тесты - Главная{% endblock %}
+
+{% block content %}
+<div id="tests-page">
+    <div class="row mb-5">
+        <div class="col-lg-8">
+            <h1 class="display-5 fw-bold mb-3" style="color: #1e40af;">
+                Оценка психологического состояния
+            </h1>
+            <p class="lead mb-4">
+                Профессиональные психологические тесты для самодиагностики и оценки состояния.
+                Пройдите тестирование и получите детальный отчет с рекомендациями.
+            </p>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 bg-transparent">
+                <div class="card-body p-4" style="background-color: rgba(30, 64, 175, 0.05); border-radius: 12px;">
+                    <h5 class="card-title" style="color: #1e40af;">Важная информация</h5>
+                    <p class="card-text small">
+                        Результаты тестов носят информационный характер и не заменяют консультацию специалиста.
+                        При высоких показателях тревоги, депрессии или суицидального риска обратитесь к врачу.
+                    </p>
+                    <div class="alert alert-warning mt-3 small">
+                        <strong>Внимание:</strong> В случае суицидальных мыслей немедленно обратитесь за помощью по телефону доверия: <strong>8-800-2000-122</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Список тестов -->
+    <section id="tests-section">
+        <h2 class="mb-4" style="color: #1e40af;">Доступные тесты</h2>
+        <p class="text-muted mb-4">Выберите тест для оценки психологического состояния</p>
+
+        <div id="tests-container" class="row g-4">
+            <!-- Тесты будут загружены через JavaScript -->
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Загрузка тестов...</span>
+                </div>
+                <p class="mt-2">Загрузка тестов...</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Страница теста -->
+<div id="test-page" class="d-none">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 id="test-title" style="color: #1e40af;"></h2>
+            <p class="text-muted" id="test-description"></p>
+        </div>
+        <div class="text-end">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <div class="progress" style="width: 150px;">
+                        <div id="test-progress" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                    </div>
+                    <small class="text-muted">Вопрос <span id="current-question">1</span> из <span id="total-questions">0</span></small>
+                </div>
+                <button class="btn btn-outline-secondary" onclick="showTestsList()">
+                    Отмена
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Контейнер для вопросов -->
+    <div id="test-questions">
+        <!-- Вопросы будут загружены динамически -->
+    </div>
+
+    <!-- Навигация по вопросам -->
+    <div class="d-flex justify-content-between mt-4">
+        <button id="prevQuestionBtn" class="btn btn-outline-primary" disabled>
+            ← Назад
+        </button>
+        <div>
+            <button id="nextQuestionBtn" class="btn btn-primary">
+                Далее →
+            </button>
+            <button id="finishTestBtn" class="btn btn-success d-none">
+                Завершить тест
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Страница результатов -->
+<div id="results-page" class="d-none">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card results-card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Результаты тестирования</h4>
+                    <span class="badge bg-success" id="results-date"></span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-3" id="results-test-name"></h5>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h6>Общий балл</h6>
+                                <div class="display-4 fw-bold" id="total-score">0</div>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div id="score-progress" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h6>Уровень выраженности</h6>
+                                <div class="display-6 fw-bold" id="severity-level" style="color: #10b981;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="interpretation mb-4">
+                        <h6>Интерпретация результатов</h6>
+                        <p id="interpretation-text"></p>
+                    </div>
+
+                    <!-- Субшкалы -->
+                    <div id="subscales-container"></div>
+
+                    <div class="mt-4">
+                        <h6>Рекомендации</h6>
+                        <ul id="recommendations-list" class="list-group list-group-flush">
+                            <!-- Рекомендации будут добавлены через JS -->
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <button id="backToTestsBtn" class="btn btn-outline-primary">
+                                Вернуться к тестам
+                            </button>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-secondary" onclick="window.print()">
+                                Распечатать
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Полезная информация -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Полезная информация</h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info small">
+                        <strong>Помните:</strong> Регулярное тестирование помогает отслеживать динамику состояния.
+                    </div>
+                    <div class="alert alert-warning small">
+                        <strong>Телефоны доверия:</strong><br>
+                        8-800-2000-122 (круглосуточно)<br>
+                        8-800-333-44-34 (круглосуточно)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- О сервисе -->
+<section id="about" class="mt-5 pt-5">
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title mb-4" style="color: #1e40af;">О сервисе</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Наши тесты</h5>
+                    <p>
+                        Все тесты разработаны на основе научно-обоснованных методик и используются 
+                        в профессиональной психологической практике.
+                    </p>
+                    <ul>
+                        <li>BDI-II - Шкала депрессии Бека</li>
+                        <li>Шкала оценки суицидального риска</li>
+                        <li>MBI - Опросник выгорания Маслач</li>
+                        <li>SF-36 - Оценка качества жизни</li>
+                        <li>IES-R - Оценка ПТСР</li>
+                        <li>Шкала тревоги Спилбергера-Ханина</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>Технологии</h5>
+                    <p>
+                        Сервис разработан с использованием современных технологий:
+                    </p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-primary">Python FastAPI</span>
+                        <span class="badge bg-success">Bootstrap 5</span>
+                        <span class="badge bg-info">SQLite</span>
+                        <span class="badge bg-warning">JavaScript</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
