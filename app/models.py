@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Text, JSON, Boolean
+# app/models.py
+from sqlalchemy import Column, Integer, String, Float, DateTime, Text, JSON, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
 
@@ -17,6 +19,6 @@ class TestResult(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     session_id = Column(String, index=True)
 
-    # Можно добавить дополнительные поля
-    user_age = Column(Integer, nullable=True)
-    user_gender = Column(String, nullable=True)
+    # Связь с пользователем
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    user = relationship("User", back_populates="test_results")
