@@ -1,10 +1,11 @@
 # app/main.py
-from fastapi import FastAPI, Request, HTTPException, Depends
+from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from sqlalchemy.orm import Session
 import uuid
 import uvicorn
 
@@ -28,8 +29,6 @@ async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
 
     print("Загрузка тестовых данных...")
-    # Тесты уже загружены при инициализации TestService
-
     yield
 
     print("Приложение завершает работу...")
@@ -93,7 +92,7 @@ async def submit_test(
         test_code: str,
         request: Request,
         current_user: User = Depends(get_current_user),
-        db=Depends(get_db)
+        db: Session = Depends(get_db)
 ):
     """Отправить ответы на тест и получить результаты"""
     try:
@@ -164,7 +163,7 @@ async def submit_test(
 @app.get("/api/user/stats", response_class=JSONResponse)
 async def get_user_stats(
         current_user: User = Depends(get_current_user),
-        db=Depends(get_db)
+        db: Session = Depends(get_db)
 ):
     """Получить статистику пользователя"""
     if not current_user:
@@ -189,7 +188,7 @@ async def get_user_stats(
 @app.get("/api/user/tests", response_class=JSONResponse)
 async def get_user_tests(
         current_user: User = Depends(get_current_user),
-        db=Depends(get_db)
+        db: Session = Depends(get_db)
 ):
     """Получить историю тестов пользователя"""
     if not current_user:
@@ -259,7 +258,7 @@ async def not_found_exception_handler(request: Request, exc: Exception):
             content={"detail": "Ресурс не найден"}
         )
 
-    current_user = await get_current_user(request, None, next(get_db()))
+    current_user = await get_current_user(request, get_db())
     return templates.TemplateResponse("index.html", {
         "request": request,
         "current_user": current_user

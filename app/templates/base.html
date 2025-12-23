@@ -35,6 +35,31 @@
                         <a class="nav-link" href="#about">О сервисе</a>
                     </li>
                 </ul>
+
+                <!-- Блок авторизации -->
+                <ul class="navbar-nav">
+                    {% if current_user %}
+                    <!-- Если пользователь авторизован -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            {{ current_user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/auth/profile">Профиль</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="logout()">Выйти</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <!-- Если пользователь не авторизован -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/login">Вход</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary ms-2" href="/auth/register">Регистрация</a>
+                    </li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
     </nav>
@@ -71,6 +96,61 @@
 
     <!-- Custom JS -->
     <script src="/static/js/app.js"></script>
+
+    <!-- Общие скрипты -->
+    <script>
+        // Проверка авторизации
+        function checkAuth() {
+            const token = localStorage.getItem('access_token');
+            return token !== null;
+        }
+
+        // Функция выхода из системы
+        async function logout() {
+            try {
+                // Отправляем запрос на сервер для выхода
+                const response = await fetch('/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    console.warn('Сервер не ответил на запрос выхода');
+                }
+            } catch (error) {
+                console.error('Ошибка при выходе:', error);
+            }
+
+            // Очищаем локальное хранилище
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('username');
+            localStorage.removeItem('remember_me');
+            localStorage.removeItem('token_expiry');
+
+            // Перенаправляем на главную страницу
+            window.location.href = '/';
+        }
+
+        // Показать/скрыть элементы в зависимости от авторизации
+        document.addEventListener('DOMContentLoaded', function() {
+            const authElements = document.querySelectorAll('.auth-only');
+            const unauthElements = document.querySelectorAll('.unauth-only');
+
+            const isAuthenticated = checkAuth();
+
+            if (isAuthenticated) {
+                authElements.forEach(el => el.style.display = '');
+                unauthElements.forEach(el => el.style.display = 'none');
+            } else {
+                authElements.forEach(el => el.style.display = 'none');
+                unauthElements.forEach(el => el.style.display = '');
+            }
+        });
+    </script>
 
     {% block extra_scripts %}{% endblock %}
 </body>
