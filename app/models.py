@@ -18,5 +18,4 @@ class TestResult(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     session_id = Column(String, index=True)
 
-    # Связь с пользователем (просто внешний ключ, без relationship)
     user_id = Column(Integer, nullable=True)  # nullable для анонимных пользователей
